@@ -569,11 +569,11 @@ footer .copy{grid-column:1/-1;padding-top:24px;border-top:1px solid var(--line);
 
 <header class="hdr" id="hdr">
   <div class="wrap">
-    <a class="logo" href="#/home"><span class="logo-mark">松</span>솔담재</a>
+    <a class="logo" href="/"><span class="logo-mark">松</span>솔담재</a>
     <nav class="nav" id="nav" aria-label="주요 메뉴">
-      <a class="link" href="#/home" data-page="home">홈</a>
-      <a class="link" href="#/about" data-page="about">소개</a>
-      <a class="link" href="#/service" data-page="service">서비스</a>
+      <a class="link" href="/" data-page="home">홈</a>
+      <a class="link" href="/about" data-page="about">소개</a>
+      <a class="link" href="/service" data-page="service">서비스</a>
       <a class="btn sm" href="https://booking.naver.com/" target="_blank" rel="noopener">예약하기</a>
     </nav>
     <div class="theme" id="theme" role="radiogroup" aria-label="화면 밝기"><i class="thumb"></i><button role="radio" data-t="light">라이트</button><button role="radio" data-t="dark">다크</button></div>
@@ -781,7 +781,7 @@ footer .copy{grid-column:1/-1;padding-top:24px;border-top:1px solid var(--line);
 
 <footer>
   <div class="wrap">
-    <div><a class="logo" href="#/home"><span class="logo-mark">松</span>솔담재</a><p>하루 세 팀만 머무는 한옥 독채</p></div>
+    <div><a class="logo" href="/"><span class="logo-mark">松</span>솔담재</a><p>하루 세 팀만 머무는 한옥 독채</p></div>
     <div><b>찾아오시는 곳</b>경북 경주시 외동읍 솔담길 00<br>(예시 주소)</div>
     <div><b>연락처</b>054-000-0000<br>카카오톡 채널 솔담재</div>
     <p class="copy">© 2026 솔담재. 포트폴리오용 샘플 사이트이며, 사진은 AI로 생성한 이미지입니다.</p>
@@ -905,7 +905,7 @@ function show(p){
 }
 function route(first){
   closeModals(true);
-  const p=(location.hash.replace('#/','')||'home'); const page=pages.includes(p)?p:'home';
+  const p=location.pathname.replace(/^\/+|\/+$/g,'')||'home'; const page=pages.includes(p)?p:'home';
   setMenu(false);
   if(page===cur){window.scrollTo({top:0,behavior:RM?'auto':'smooth'});return}
   if(first||RM){show(page);openDoor(first);return}
@@ -917,7 +917,15 @@ function openDoor(first){
   if(RM){door.classList.add('instant');door.classList.remove('shut');document.body.classList.add('ready');return}
   requestAnimationFrame(()=>requestAnimationFrame(()=>{door.classList.remove('instant');setTimeout(()=>{door.classList.remove('shut');document.body.classList.add('ready')},first?250:0)}));
 }
-addEventListener('hashchange',()=>route(false));
+/* clean URLs: /, /about, /service */
+if(location.hash.startsWith('#/')){const h=location.hash.slice(2);history.replaceState(null,'',(h&&h!=='home'&&pages.includes(h))?'/'+h:'/')}
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a[href^="/"]'); if(!a||a.target==='_blank'||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;
+  e.preventDefault(); const to=a.getAttribute('href');
+  if(to!==location.pathname) history.pushState(null,'',to);
+  route(false);
+});
+addEventListener('popstate',()=>route(false));
 
 /* ---------- ink ripple ---------- */
 document.addEventListener('pointerdown',e=>{
